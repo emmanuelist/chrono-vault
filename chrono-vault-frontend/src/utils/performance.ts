@@ -217,57 +217,13 @@ export function getPerformanceAlerts(severity?: PerformanceAlert['severity'], re
   if (severity) {
     alerts = alerts.filter(a => a.severity === severity)
   }
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: NodeJS.Timeout
-  
-  if (resolved !== undefined) {
-    alerts = alerts.filter(a => a.resolved === resolved)
-  }
-  
-  return alerts
-}
+// Use centralized debounce/throttle from performanceUtils
+import { createDebounce, createThrottle } from './performanceUtils';
 
-/**
- * Resolves a performance alert
- */
-export function resolveAlert(alertId: string): boolean {
-  const alert = performanceAlerts.find(a => a.id === alertId)
-  if (alert) {
-    alert.resolved = true
-    return true
-  }
-  return false
-}
+// ...existing code...
 
-/**
- * Calculates average performance for a specific metric with confidence intervals
- */
-export function getAverageMetric(name: string, category?: string, timeRange?: number): {
-  average: number
-  median: number
-  percentile95: number
-  percentile99: number
-  sampleCount: number
-  confidence: number
-} {
-  const metrics = getPerformanceMetrics(category, timeRange)
-    .filter(m => m.name === name)
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let lastCall = 0
-  
-  if (metrics.length === 0) {
-    return { average: 0, median: 0, percentile95: 0, percentile99: 0, sampleCount: 0, confidence: 0 }
-  }
-  
-  const values = metrics.map(m => m.value).sort((a, b) => a - b)
-  const average = values.reduce((sum, val) => sum + val, 0) / values.length
-  const median = values[Math.floor(values.length / 2)]
+export const debounce = createDebounce;
+export const throttle = createThrottle;
   const percentile95 = values[Math.floor(values.length * 0.95)] || 0
   const percentile99 = values[Math.floor(values.length * 0.99)] || 0
   
