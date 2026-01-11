@@ -28,7 +28,7 @@ interface ComponentState {
 /**
  * Validates saved state data integrity and format
  */
-function validateSavedState(state: any): ValidationError[] {
+function validateSavedState(state: SavedState): ValidationError[] {
   const errors: ValidationError[] = [];
 
   // Validate ID
@@ -80,20 +80,20 @@ function validateSavedState(state: any): ValidationError[] {
 /**
  * Sanitizes saved state data to prevent XSS and data corruption
  */
-function sanitizeSavedState(state: any): SavedState | null {
+function sanitizeSavedState(state: unknown): SavedState | null {
   try {
-    // Create a clean copy with proper typing
+    // Defensive: ensure state is an object
+    if (typeof state !== 'object' || state === null) return null;
+    const s = state as Partial<SavedState>;
     const sanitized: SavedState = {
-      id: String(state.id || '').trim(),
-      name: String(state.name || '').trim(),
-      amount: String(state.amount || '0').trim(),
-      unlockTime: Number(state.unlockTime) || 0,
-      date: String(state.date || new Date().toISOString())
+      id: String(s.id ?? '').trim(),
+      name: String(s.name ?? '').trim(),
+      amount: String(s.amount ?? '0').trim(),
+      unlockTime: Number(s.unlockTime) || 0,
+      date: String(s.date ?? new Date().toISOString())
     };
-
     // Additional sanitization for potentially dangerous content
-    sanitized.name = sanitized.name.replace(/[<>\"'&]/g, ''); // Remove potential XSS characters
-    
+    sanitized.name = sanitized.name.replace(/[<>"'&]/g, ''); // Remove potential XSS characters
     return sanitized;
   } catch (error) {
     console.error('Error sanitizing saved state:', error);
@@ -124,7 +124,6 @@ export function SaveForLater({ savedStates, onLoadState, onDeleteState }: SaveFo
         });
         return;
       }
-
       const errors = validateSavedState(sanitized);
       if (errors.length > 0) {
         validationErrors.push(...errors.map(error => ({
