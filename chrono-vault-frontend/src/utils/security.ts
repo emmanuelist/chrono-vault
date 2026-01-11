@@ -199,7 +199,8 @@ export function validateEmail(email: string): ValidationResult {
 export function validateUrl(url: string): ValidationResult {
   const result = sanitizeInput(url, {
     maxLength: VALIDATION.MAX_URL_LENGTH,
-    strictMode: true
+    allowHTML: false,
+    strictMode: false
   });
 
   if (!result.isValid) {
