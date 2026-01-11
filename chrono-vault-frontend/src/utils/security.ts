@@ -117,9 +117,9 @@ export function sanitizeInput(
     errors.push('Input contains invalid characters')
   }
 
-  // Check disallowed patterns
-  let sanitized = input
-  
+  // Always remove SQL injection patterns, even if not in disallowedPatterns
+  let sanitized = input;
+
   if (!allowHTML) {
     // Remove HTML tags and potential XSS
     sanitized = sanitized
@@ -127,14 +127,17 @@ export function sanitizeInput(
       .replace(SECURITY_PATTERNS.XSS_EVENT, '')
       .replace(/javascript:/gi, '')
       .replace(/vbscript:/gi, '')
-      .replace(/data:/gi, '')
+      .replace(/data:/gi, '');
   }
+
+  // Remove SQL injection patterns always
+  sanitized = sanitized.replace(SECURITY_PATTERNS.SQL_INJECTION, '');
 
   // Apply additional security patterns
   for (const pattern of disallowedPatterns) {
     if (pattern.test(sanitized)) {
-      errors.push('Input contains potentially malicious content')
-      sanitized = sanitized.replace(pattern, '')
+      errors.push('Input contains potentially malicious content');
+      sanitized = sanitized.replace(pattern, '');
     }
   }
 
@@ -197,46 +200,56 @@ export function validateUrl(url: string): ValidationResult {
   const result = sanitizeInput(url, {
     maxLength: VALIDATION.MAX_URL_LENGTH,
     strictMode: true
-  })
+  });
 
   if (!result.isValid) {
-    return result
+    return result;
   }
 
-  // Only allow HTTP and HTTPS
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+  // Only allow HTTP and HTTPS (case-insensitive)
+  const urlLower = url.toLowerCase();
+  if (!(urlLower.startsWith('http://') || urlLower.startsWith('https://'))) {
     return {
       isValid: false,
       errors: ['Only HTTP and HTTPS URLs are allowed']
-    }
+    };
   }
 
   // Check for dangerous protocols
-  const dangerousProtocols = ['javascript:', 'vbscript:', 'data:', 'file:', 'ftp:']
+  const dangerousProtocols = ['javascript:', 'vbscript:', 'data:', 'file:', 'ftp:'];
   for (const protocol of dangerousProtocols) {
-    if (url.toLowerCase().startsWith(protocol)) {
+    if (urlLower.startsWith(protocol)) {
       return {
         isValid: false,
         errors: [`Dangerous protocol not allowed: ${protocol}`]
-      }
+      };
     }
   }
 
-  // Validate URL format
+  // Validate URL format using URL constructor only
+  let parsed: URL;
   try {
-    new URL(url)
+    parsed = new URL(url);
   } catch {
     return {
       isValid: false,
       errors: ['Invalid URL format']
-    }
+    };
+  }
+
+  // Only allow http and https protocols
+  if (!(parsed.protocol === 'http:' || parsed.protocol === 'https:')) {
+    return {
+      isValid: false,
+      errors: ['Only HTTP and HTTPS URLs are allowed']
+    };
   }
 
   return {
     isValid: true,
     errors: [],
     sanitized: url.trim()
-  }
+  };
 }
 
 /**
