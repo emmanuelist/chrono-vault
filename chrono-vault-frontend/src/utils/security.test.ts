@@ -40,6 +40,8 @@ describe('Security Utilities', () => {
 
   describe('validateUrl', () => {
     it('accepts http/https URLs', () => {
+      console.log('https:', validateUrl('https://example.com'));
+      console.log('http:', validateUrl('http://example.com'));
       expect(validateUrl('https://example.com').isValid).toBe(true);
       expect(validateUrl('http://example.com').isValid).toBe(true);
     });
