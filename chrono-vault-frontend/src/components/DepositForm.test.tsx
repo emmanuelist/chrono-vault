@@ -18,12 +18,12 @@ describe('DepositForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    global.alert = mockAlert
+    globalThis.alert = mockAlert
   })
 
   describe('Form Input', () => {
     it('should render amount input field', () => {
-      mockUseVault.mockReturnValue({
+      mockUseVault.mockReturnValue({} as any || {
         deposit: mockDeposit,
         isPending: false,
         isConfirming: false,
@@ -54,7 +54,7 @@ describe('DepositForm', () => {
     it('should update amount when user types', async () => {
       const user = userEvent.setup()
 
-      mockUseVault.mockReturnValue({
+      mockUseVault.mockReturnValue({} as any)
         deposit: mockDeposit,
         isPending: false,
         isConfirming: false,
