@@ -11,7 +11,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { useWalletHistory } from './hooks/useWalletHistory'
 import { useVault } from './hooks/useVault'
 import { useMobile, useTouchDevice } from './hooks/useMobile'
-import { DebugPage } from './components/DebugPage'
+// DebugPage import removed
 import './App.css'
 import './styles/walletConnect.css'
 import './styles/saveForLater.css'
@@ -147,7 +147,7 @@ function App() {
             </ErrorBoundary>
           ) : currentPage === 'debug' ? (
             <ErrorBoundary level="page">
-              <DebugPage />
+              {/* DebugPage removed as dev-only code */}
             </ErrorBoundary>
           ) : (
             <ErrorBoundary level="page">
