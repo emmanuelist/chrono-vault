@@ -17,12 +17,12 @@ describe('WithdrawButton', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    global.alert = mockAlert
+    globalThis.alert = mockAlert
   })
 
   describe('Locked State Display', () => {
     it('should display warning message when funds are locked', () => {
-      mockUseVault.mockReturnValue({
+      mockUseVault.mockReturnValue({} as any || {
         balance: BigInt('1000000000000000000'),
         unlockTime: BigInt(Math.floor(Date.now() / 1000) + 3600),
         withdraw: mockWithdraw,
@@ -58,7 +58,7 @@ describe('WithdrawButton', () => {
     })
 
     it('should display button as disabled when funds are locked', () => {
-      mockUseVault.mockReturnValue({
+      mockUseVault.mockReturnValue({} as any)
         balance: BigInt('1000000000000000000'),
         unlockTime: BigInt(Math.floor(Date.now() / 1000) + 3600),
         withdraw: mockWithdraw,
